@@ -181,9 +181,9 @@ router.patch("/:id", async (req, res) => {
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-      if (task.frequency === "Positive") {
+      if (task.text === "Positive") {
         user.points += task.points;
-      } else if (task.frequency === "Negative") {
+      } else if (task.text === "Negative") {
         user.points -= task.points;
       }
 
@@ -200,11 +200,12 @@ router.patch("/:id", async (req, res) => {
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-      if (task.frequency === "Positive") {
+      if (task.text === "Positive") {
         user.points = Math.max(0, user.points - task.points);
-      } else if (task.frequency === "Negative") {
+      } else if (task.text === "Negative") {
         user.points += task.points;
       }
+
       await user.save();
       task.completed = completed;
       await task.save();

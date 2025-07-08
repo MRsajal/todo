@@ -1,6 +1,18 @@
 import React, { useRef, useState } from "react";
 import axios from "axios";
+import {
+  Eye,
+  EyeOff,
+  User,
+  Mail,
+  Lock,
+  Upload,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 import { useNavigate } from "react-router";
+
+const BASE_URL = "http://localhost:5000";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -9,7 +21,7 @@ export default function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/auth/register", {
+      await axios.post(`${BASE_URL}/api/auth/register`, {
         email,
         password,
       });
@@ -54,6 +66,8 @@ function Reg() {
   const [isLoading, setIsLoading] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState(null);
   const usernameCheckTimeout = useRef(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const navigate = useNavigate();
   const handleChange = (e) => {
@@ -80,7 +94,7 @@ function Reg() {
   const checkUsernameAvailability = async (username) => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/auth/check-username/${username}`
+        `${BASE_URL}/api/auth/check-username/${username}`
       );
       setUsernameAvailable(response.data.available);
     } catch (error) {
@@ -149,7 +163,7 @@ function Reg() {
       data.append("points", 0);
       data.append("profile", profileImage);
 
-      await axios.post("http://localhost:5000/api/auth/register", data, {
+      await axios.post(`${BASE_URL}/api/auth/register`, data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -167,155 +181,248 @@ function Reg() {
     }
   };
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Create an Account</h2>
-
-      {error.form && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
-          {error.form}
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full mb-4">
+            <User className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
+          <p className="text-slate-400">Join us today</p>
         </div>
-      )}
 
-      <form onSubmit={handleRegister} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Username
-          </label>
-          <input
-            type="text"
-            name="username"
-            placeholder="Choose a unique username"
-            value={formData.username}
-            onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-md ${
-              error.username ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {error.username && (
-            <p className="mt-1 text-sm text-red-500">{error.username}</p>
+        {/* Registration Form */}
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-2xl border border-white/20">
+          {error.form && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+              <div className="flex items-center gap-3">
+                <XCircle className="w-5 h-5 text-red-400" />
+                <p className="text-red-400 text-sm font-medium">{error.form}</p>
+              </div>
+            </div>
           )}
-          {formData.username.length >= 3 && (
-            <div className="mt-1">
-              {usernameAvailable === null ? (
-                <p className="text-sm text-gray-500">
-                  Checking availability...
+
+          <div className="space-y-6">
+            {/* Username Field */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-200 mb-2">
+                Username
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                  type="text"
+                  name="username"
+                  placeholder="Choose a unique username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  className={`w-full pl-12 pr-4 py-3 bg-white/5 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 ${
+                    error.username ? "border-red-500/50" : "border-white/10"
+                  }`}
+                />
+              </div>
+              {error.username && (
+                <p className="mt-2 text-sm text-red-400 flex items-center gap-2">
+                  <XCircle className="w-4 h-4" />
+                  {error.username}
                 </p>
-              ) : usernameAvailable ? (
-                <p className="text-sm text-green-500">Username is available</p>
-              ) : (
-                <p className="text-sm text-red-500">
-                  Username is already taken
+              )}
+              {formData.username.length >= 3 && (
+                <div className="mt-2">
+                  {usernameAvailable === null ? (
+                    <p className="text-sm text-slate-400 flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-slate-400/30 border-t-slate-400 rounded-full animate-spin"></div>
+                      Checking availability...
+                    </p>
+                  ) : usernameAvailable ? (
+                    <p className="text-sm text-green-400 flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4" />
+                      Username is available
+                    </p>
+                  ) : (
+                    <p className="text-sm text-red-400 flex items-center gap-2">
+                      <XCircle className="w-4 h-4" />
+                      Username is already taken
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Email Field */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-200 mb-2">
+                Email Address
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Your email address"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`w-full pl-12 pr-4 py-3 bg-white/5 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 ${
+                    error.email ? "border-red-500/50" : "border-white/10"
+                  }`}
+                />
+              </div>
+              {error.email && (
+                <p className="mt-2 text-sm text-red-400 flex items-center gap-2">
+                  <XCircle className="w-4 h-4" />
+                  {error.email}
                 </p>
               )}
             </div>
-          )}
-        </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email
-          </label>
-          <input
-            type="email"
-            name="email"
-            placeholder="Your email address"
-            value={formData.email}
-            onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-md ${
-              error.email ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {error.email && (
-            <p className="mt-1 text-sm text-red-500">{error.email}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Password
-          </label>
-          <input
-            type="password"
-            name="password"
-            placeholder="Create a strong password"
-            value={formData.password}
-            onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-md ${
-              error.password ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {error.password && (
-            <p className="mt-1 text-sm text-red-500">{error.password}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Confirm Password
-          </label>
-          <input
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirm your password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-md ${
-              error.confirmPassword ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {error.confirmPassword && (
-            <p className="mt-1 text-sm text-red-500">{error.confirmPassword}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Profile Image
-          </label>
-          <div className="flex items-center space-x-4">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="hidden"
-              id="profile-image"
-            />
-            <label
-              htmlFor="profile-image"
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md cursor-pointer hover:bg-gray-300 transition"
-            >
-              Choose Image
-            </label>
-            {imagePreview && (
-              <div className="h-16 w-16 rounded-full overflow-hidden">
-                <img
-                  src={imagePreview}
-                  alt="Profile preview"
-                  className="h-full w-full object-cover"
+            {/* Password Field */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-200 mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Create a strong password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`w-full pl-12 pr-12 py-3 bg-white/5 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 ${
+                    error.password ? "border-red-500/50" : "border-white/10"
+                  }`}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
               </div>
-            )}
+              {error.password && (
+                <p className="mt-2 text-sm text-red-400 flex items-center gap-2">
+                  <XCircle className="w-4 h-4" />
+                  {error.password}
+                </p>
+              )}
+            </div>
+
+            {/* Confirm Password Field */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-200 mb-2">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  placeholder="Confirm your password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className={`w-full pl-12 pr-12 py-3 bg-white/5 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 ${
+                    error.confirmPassword
+                      ? "border-red-500/50"
+                      : "border-white/10"
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+              {error.confirmPassword && (
+                <p className="mt-2 text-sm text-red-400 flex items-center gap-2">
+                  <XCircle className="w-4 h-4" />
+                  {error.confirmPassword}
+                </p>
+              )}
+            </div>
+
+            {/* Profile Image Upload */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-200 mb-2">
+                Profile Image
+              </label>
+              <div className="flex items-center gap-4">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                  id="profile-image"
+                />
+                <label
+                  htmlFor="profile-image"
+                  className="flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-slate-300 cursor-pointer hover:bg-white/10 transition-all duration-200"
+                >
+                  <Upload className="w-5 h-5" />
+                  Choose Image
+                </label>
+                {imagePreview && (
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/20">
+                      <img
+                        src={imagePreview}
+                        alt="Profile preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+              {error.profileImage && (
+                <p className="mt-2 text-sm text-red-400 flex items-center gap-2">
+                  <XCircle className="w-4 h-4" />
+                  {error.profileImage}
+                </p>
+              )}
+            </div>
+
+            {/* Register Button */}
+            <button
+              onClick={handleRegister}
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Creating Account...
+                </div>
+              ) : (
+                "Create Account"
+              )}
+            </button>
+
+            {/* Login Link */}
+            <div className="text-center pt-4">
+              <p className="text-slate-400">
+                Already have an account?{" "}
+                <a
+                  href="/login"
+                  className="text-purple-400 hover:text-purple-300 font-semibold transition-colors"
+                >
+                  Sign In
+                </a>
+              </p>
+            </div>
           </div>
-          {error.profileImage && (
-            <p className="mt-1 text-sm text-red-500">{error.profileImage}</p>
-          )}
         </div>
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
-        >
-          {isLoading ? "Creating Account..." : "Register"}
-        </button>
-
-        <div className="text-center text-sm text-gray-600">
-          Already have an account?{" "}
-          <a href="/login" className="text-blue-600 hover:underline">
-            Log in
-          </a>
-        </div>
-      </form>
+      </div>
     </div>
   );
 }
