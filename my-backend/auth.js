@@ -35,8 +35,6 @@ const upload = multer({
   },
 });
 
-// Routes
-
 // Check if username is available
 router.get("/check-username/:username", async (req, res) => {
   try {

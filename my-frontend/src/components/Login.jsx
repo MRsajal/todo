@@ -1,15 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
-import {
-  Eye,
-  EyeOff,
-  User,
-  Mail,
-  Lock,
-  Upload,
-  CheckCircle,
-  XCircle,
-} from "lucide-react";
+import { Eye, EyeOff, User, Mail, Lock, XCircle } from "lucide-react";
 import axios from "axios";
 const BASE_URL = "http://localhost:5000";
 

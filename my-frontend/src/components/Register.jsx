@@ -18,38 +18,7 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post(`${BASE_URL}/api/auth/register`, {
-        email,
-        password,
-      });
-      navigate("/login");
-    } catch (error) {
-      alert(error.response.data.message);
-    }
-  };
-  return (
-    // <form onSubmit={handleRegister}>
-    //   <input
-    //     type="email"
-    //     placeholder="Email"
-    //     value={email}
-    //     onChange={(e) => setEmail(e.target.value)}
-    //     required
-    //   />
-    //   <input
-    //     type="password"
-    //     placeholder="Passoword"
-    //     value={password}
-    //     onChange={(e) => setPassword(e.target.value)}
-    //     required
-    //   />
-    //   <button type="submit">Register</button>
-    // </form>
-    <Reg />
-  );
+  return <Reg />;
 }
 
 function Reg() {

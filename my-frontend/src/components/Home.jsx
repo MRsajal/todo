@@ -20,6 +20,7 @@ export default function Home() {
   const [title, setTitle] = useState("");
   const [cost, setCost] = useState(0);
   const [rewards, setReward] = useState([]);
+  const [dailyRewards, setDailyReward] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -47,9 +48,16 @@ export default function Home() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/rewards")
+      .get(`http://localhost:5000/api/rewards/daily-reward/${userId}`)
       .then((res) => setReward(res.data))
-      .catch((err) => console.log("Error fetching tasks:", err));
+      .catch((err) => console.log("Error fetching rewards:", err));
+  }, [userId]);
+
+  useEffect(() => {
+    axios
+      .get(`http://localhost:5000/api/rewards/${userId}`)
+      .then((res) => setReward(res.data))
+      .catch((err) => console.log("Error fetching rewards:", err));
 
     if (userId) {
       axios
@@ -215,71 +223,74 @@ export default function Home() {
 
           {/* Rewards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {rewards.map((reward) => (
-              <div
-                key={reward._id}
-                className={`group relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border-2 ${
-                  reward.completed
-                    ? "border-green-200 bg-green-50 dark:bg-green-900/20"
-                    : "border-gray-200 dark:border-gray-700"
-                }`}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <button
-                    onClick={() => toggleComplete(reward._id, reward.completed)}
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
-                      reward.completed
-                        ? "bg-green-500 border-green-500 text-white"
-                        : "border-gray-300 dark:border-gray-600 hover:border-green-400"
-                    }`}
-                  >
-                    {reward.completed && <Check className="w-3 h-3" />}
-                  </button>
-                  <button
-                    onClick={() => deleteReward(reward._id)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 p-1 rounded-full"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="space-y-3">
-                  <h3
-                    className={`font-semibold text-gray-800 dark:text-white ${
-                      reward.completed ? "line-through text-gray-500" : ""
-                    }`}
-                  >
-                    {reward.title}
-                  </h3>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Star className="w-4 h-4 text-yellow-500" />
-                      <span
-                        className={`font-bold ${
-                          userPoints >= reward.cost
-                            ? "text-green-600 dark:text-green-400"
-                            : "text-red-500 dark:text-red-400"
-                        }`}
-                      >
-                        {reward.cost} pts
-                      </span>
-                    </div>
-                    {userPoints >= reward.cost && !reward.completed && (
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    )}
+            {Array.isArray(rewards) &&
+              rewards.map((reward) => (
+                <div
+                  key={reward._id}
+                  className={`group relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border-2 ${
+                    reward.completed
+                      ? "border-green-200 bg-green-50 dark:bg-green-900/20"
+                      : "border-gray-200 dark:border-gray-700"
+                  }`}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <button
+                      onClick={() =>
+                        toggleComplete(reward._id, reward.completed)
+                      }
+                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                        reward.completed
+                          ? "bg-green-500 border-green-500 text-white"
+                          : "border-gray-300 dark:border-gray-600 hover:border-green-400"
+                      }`}
+                    >
+                      {reward.completed && <Check className="w-3 h-3" />}
+                    </button>
+                    <button
+                      onClick={() => deleteReward(reward._id)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 p-1 rounded-full"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                   </div>
-                </div>
 
-                {reward.completed && (
-                  <div className="absolute top-2 right-2">
-                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                      <Check className="w-4 h-4 text-white" />
+                  <div className="space-y-3">
+                    <h3
+                      className={`font-semibold text-gray-800 dark:text-white ${
+                        reward.completed ? "line-through text-gray-500" : ""
+                      }`}
+                    >
+                      {reward.title}
+                    </h3>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Star className="w-4 h-4 text-yellow-500" />
+                        <span
+                          className={`font-bold ${
+                            userPoints >= reward.cost
+                              ? "text-green-600 dark:text-green-400"
+                              : "text-red-500 dark:text-red-400"
+                          }`}
+                        >
+                          {reward.cost} pts
+                        </span>
+                      </div>
+                      {userPoints >= reward.cost && !reward.completed && (
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {reward.completed && (
+                    <div className="absolute top-2 right-2">
+                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                        <Check className="w-4 h-4 text-white" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
           </div>
         </div>
 
