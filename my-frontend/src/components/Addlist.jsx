@@ -457,7 +457,7 @@ function AddList() {
                     <option value="study">Study</option>
                     <option value="health">Health</option>
                     <option value="game">Game</option>
-                    <option value="custom">Custom</option>
+                    {/* <option value="custom">Custom</option> */}
                   </select>
                 </div>
 

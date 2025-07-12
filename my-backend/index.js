@@ -8,7 +8,6 @@ const taskRoutes = require("./task");
 const rewardRoutes = require("./reward");
 const profileRoutes = require("./userProfile");
 const taskStatsRoutes = require("./taskStatusRoute");
-require("dotenv").config();
 
 const app = express();
 app.use(cors());
