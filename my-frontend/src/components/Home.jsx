@@ -20,7 +20,6 @@ export default function Home() {
   const [title, setTitle] = useState("");
   const [cost, setCost] = useState(0);
   const [rewards, setReward] = useState([]);
-  const [dailyRewards, setDailyReward] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -41,10 +40,6 @@ export default function Home() {
     setIsModalOpen(false);
     // setTitle("");
   };
-  function handleLogout() {
-    localStorage.removeItem("userId");
-    navigate("/login");
-  }
 
   useEffect(() => {
     axios
@@ -66,7 +61,7 @@ export default function Home() {
         .catch((err) => console.log("Error fetching user data:", err));
     }
   }, [userId]);
-  const addTask = () => {
+  const addReward = () => {
     if (!title.trim()) return;
     axios
       .post("http://localhost:5000/api/rewards", {
@@ -75,7 +70,7 @@ export default function Home() {
         achieved: false,
         userId,
       })
-      .then((res) => setReward([...reward, res.data]));
+      .then((res) => setReward([...rewards, res.data]));
     setTitle("");
     setCost(0);
     setIsModalOpen(false);
@@ -86,7 +81,7 @@ export default function Home() {
       .delete(`http://localhost:5000/api/rewards/${id}`, {
         data: { userId: userId },
       })
-      .then(() => setReward(reward.filter((task) => task._id !== id)))
+      .then(() => setReward(rewards.filter((task) => task._id !== id)))
       .catch((err) => {
         console.error(err);
       });
@@ -105,7 +100,9 @@ export default function Home() {
       if (response.data.userPoints !== undefined) {
         setUserPoints(response.data.userPoints);
       }
-      setReward(reward.map((task) => (task._id === id ? response.data : task)));
+      setReward(
+        rewards.map((task) => (task._id === id ? response.data : task))
+      );
     } catch (error) {
       console.error("Error updating task:", error);
     }
@@ -159,48 +156,9 @@ export default function Home() {
           </div>
         </div>
       </nav>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Profile Card */}
-        {/* <div className="mb-8">
-          <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-1 rounded-2xl shadow-xl">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                    <Trophy className="w-8 h-8 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-                      Welcome back!
-                    </h2>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      {formattedDate}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <Coins className="w-6 h-6 text-yellow-500" />
-                    <span className="text-3xl font-bold text-yellow-500">
-                      {userPoints}
-                    </span>
-                    <span className="text-gray-600 dark:text-gray-300">
-                      points
-                    </span>
-                  </div>
-                  <div className="w-32 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full transition-all duration-500"
-                      style={{
-                        width: `${Math.min((userPoints / 1000) * 100, 100)}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> */}
         <ProfileCard />
 
         {/* Rewards Section */}
@@ -208,8 +166,8 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Gift className="w-8 h-8 text-purple-500" />
-              <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
-                Your Rewards
+              <h2 className="text-3xl font-bold text-gray-800 dark:text-white mt-7">
+                Your Rewards ({rewards.length})
               </h2>
             </div>
             <button
@@ -220,6 +178,19 @@ export default function Home() {
               <span className="font-semibold">Add New Reward</span>
             </button>
           </div>
+
+          {/* Empty State */}
+          {rewards.length === 0 && (
+            <div className="text-center py-12">
+              <Gift className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">
+                No rewards yet
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400">
+                Add your first reward to get started!
+              </p>
+            </div>
+          )}
 
           {/* Rewards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -247,7 +218,7 @@ export default function Home() {
                       {reward.completed && <Check className="w-3 h-3" />}
                     </button>
                     <button
-                      onClick={() => deleteReward(reward._id)}
+                      onClick={() => deleteListItem(reward._id)}
                       className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 p-1 rounded-full"
                     >
                       <X className="w-4 h-4" />
@@ -335,7 +306,7 @@ export default function Home() {
                       className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-purple-500 focus:outline-none dark:bg-gray-700 dark:text-white transition-all duration-200"
                       placeholder="Enter point cost"
                       value={cost}
-                      onChange={(e) => setCost(e.target.value)}
+                      onChange={(e) => setCost(Number(e.target.value))}
                       min="0"
                     />
                   </div>

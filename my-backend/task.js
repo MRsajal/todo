@@ -73,7 +73,7 @@ router.post("/", async (req, res) => {
       const prompt = `
         Generate ${amount} ${frequency} tasks with a ${text.toLowerCase()} focus.
         These should be in the category "${category}" and suitable for ${level} difficulty level.
-        Respond with a plain list of task titles only, no numbering or extra descriptions.
+        Respond with a plain list of task titles only, no numbering or extra descriptions means in less words.
       `;
 
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });

@@ -90,7 +90,7 @@ router.get("/daily-reward/:userId", async (req, res) => {
     });
 
     if (existing) {
-      console.log("Daily reward already exists:", existing);
+      console.log("Daily reward already exists");
       return res.json(existing);
     }
 
